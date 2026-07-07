@@ -1,0 +1,117 @@
+================================================================================
+DOKUMENTASI SPESIFIKASI TEKNIS & FITUR PLATFORM
+PROJECT: Global Supply Chain Risk Intelligence Platform
+================================================================================
+
+Kepada: Tim Developer (Full Stack / Backend / Frontend)
+
+Mohon pelajari dokumen spesifikasi di bawah ini untuk memulai pengembangan 
+platform monitoring risiko rantai pasok global. Platform ini berbasis multi-API,
+analitik data, dan visualisasi interaktif.
+
+--------------------------------------------------------------------------------
+1. TECH STACK & ARSITEKTUR UTAMA
+--------------------------------------------------------------------------------
+Platform dibangun menggunakan arsitektur Monolith (Backend & Frontend bersatu 
+dalam satu repositori Laravel) agar mempermudah deployment dan menghindari isu CORS.
+
+* Backend: PHP >= 8.x dengan Framework Laravel
+* Database: MySQL (Ekspektasi struktur: 15-20 tabel)
+* Frontend: Laravel Blade Templates + Bootstrap 5 (CSS/JS via CDN)
+* JavaScript: Vanilla JS ES6 / AJAX (Fetch API) untuk request asinkronus
+* Visualisasi Data: Chart.js (Grafik/Tren) & Leaflet.js (Peta Interaktif)
+* Version Control & Deployment: GitHub & Docker (opsional)
+
+--------------------------------------------------------------------------------
+2. INTEGRASI DATA / DATA SOURCES (7 API GRATIS)
+--------------------------------------------------------------------------------
+Developer WAJIB mengintegrasikan data dari sumber berikut dan menerapkan sistem 
+caching pada backend Laravel agar tidak terkena rate-limiting:
+
+1. Open-Meteo API (Tanpa API Key):
+   - Data: Temperatur, Curah hujan, Kecepatan angin, Risiko badai.
+2. World Bank API:
+   - Data: GDP, Inflasi, Populasi, Ekspor, Impor.
+3. REST Countries API:
+   - Data: Detail Negara, Mata uang, Wilayah, Bahasa.
+4. ExchangeRate API:
+   - Data: Kurs mata uang real-time.
+5. World Port Index Dataset (Marine Traffic Alternative):
+   - Data: Nama Pelabuhan, Lokasi (Lat/Long), Negara.
+   - Catatan: Import dataset publik ini langsung ke database MySQL menggunakan 
+     Laravel Database Seeder (jangan dibaca mentah dari CSV saat runtime).
+6. GNews API (News API Alternatif):
+   - Data: Berita ekonomi, logistik, geopolitik, shipping, trade.
+7. OpenStreetMap:
+   - Digunakan sebagai base-layer peta pada Leaflet.js.
+
+--------------------------------------------------------------------------------
+3. STRUKTUR ENDPOINT REST API YANG HARUS DIBUAT (DI routes/api.php)
+--------------------------------------------------------------------------------
+Developer harus menyediakan minimal 30+ endpoint. 5 Endpoint utama yang wajib:
+
+1. GET /api/countries -> Mengambil daftar negara & informasi dasar ekonomi.
+2. GET /api/risk      -> Mengambil kalkulasi skor risiko suatu negara.
+3. GET /api/ports     -> Mengambil koordinat & data pelabuhan berdasarkan negara.
+4. GET /api/news      -> Mengambil berita terkini (yang sudah tersaring sentiment).
+5. GET /api/currency  -> Mengambil tren pergerakan kurs mata uang.
+
+--------------------------------------------------------------------------------
+4. IMPLEMENTASI FITUR DATA SCIENCE & LOGIKA KRUSIAL
+--------------------------------------------------------------------------------
+
+A. Lexicon-Based Sentiment Analysis (PHP / Backend)
+Jangan melakukan query ke DB untuk setiap kata di dalam looping berita. 
+Gunakan logika optimasi berikut:
+1. Ambil semua baris dari tabel 'positive_words' dan 'negative_words' ke dalam 
+   array PHP menggunakan `pluck('word')->toArray()` di awal proses.
+2. Pecah string berita menjadi array kata (tokenize), bersihkan tanda baca, 
+   dan ubah ke lowercase.
+3. Lakukan pencocokan di dalam memory menggunakan `in_array()`.
+4. Hitung total skor dan tentukan output: Positive / Neutral / Negative.
+
+B. Risk Scoring Engine (Weighted Risk Model)
+Buat sebuah Service Class di Laravel untuk menghitung skor risiko dengan rumus:
+   Skor Risiko = (Cuaca * 30%) + (Inflasi * 20%) + (Berita Politik * 40%) + (Kurs * 10%)
+Output harus berupa angka (0-100) dan status: Low Risk / Medium Risk / High Risk.
+
+--------------------------------------------------------------------------------
+5. FITUR DASHBOARD & INTERFACES (FRONTEND)
+--------------------------------------------------------------------------------
+
+1. Global Country Dashboard:
+   - Dropdown pilih negara -> Tampilan otomatis berubah via AJAX tanpa reload.
+   - Menampilkan GDP, Inflasi, Populasi, Mata uang, dan Cuaca saat ini.
+2. Global Weather Monitoring:
+   - Peta Leaflet.js yang menunjukkan indikator cuaca buruk/badai secara visual.
+3. Currency Impact Dashboard:
+   - Grafik tren perubahan kurs real-time menggunakan Chart.js.
+4. News Intelligence:
+   - Menampilkan list berita dan persentase hasil analisis sentimen.
+5. Port Location Dashboard:
+   - Peta interaktif Leaflet.js yang menampilkan marker semua pelabuhan dunia.
+   - Fitur pencarian pelabuhan dan filter berdasarkan negara.
+6. Country Comparison Engine:
+   - Komparasi berdampingan (side-by-side) antara 2 negara terpilih terkait 
+     indikator ekonomi dan tingkat risikonya.
+7. Favorite Monitoring List:
+   - Fitur bagi user untuk menyimpan/bookmark negara tertentu ke database.
+8. Admin Dashboard:
+   - Halaman CRUD manajemen user, dataset pelabuhan, dan artikel analisis bisnis.
+
+--------------------------------------------------------------------------------
+6. TAHAPAN PENGERJAAN YANG DISARANKAN
+--------------------------------------------------------------------------------
+* Fase 1: Setup database MySQL, migrasi tabel (15-20 tabel termasuk users, 
+          countries, ports, risk_scores, news_cache, watchlists), dan buat seeder 
+          untuk dictionary kata serta dataset pelabuhan.
+* Fase 2: Integrasi API eksternal di Laravel, setup mekanisme Cache, 
+          dan tulis logika coding untuk Sentiment Analysis dan Risk Scoring.
+* Fase 3: Integrasi Frontend (Blade, Bootstrap 5, AJAX) untuk menghubungkan UI 
+          dengan REST API yang sudah dibuat di backend.
+* Fase 4: Implementasi visualisasi peta (Leaflet.js) dan grafik (Chart.js).
+
+================================================================================
+Dibuat berdasarkan Dokumen Spesifikasi Resmi Project FINAL.
+Silakan tim developer mendiskusikan timeline pengerjaan dan pembagian tugas.
+================================================================================
