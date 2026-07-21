@@ -67,8 +67,12 @@ Route::delete('watchlists/{id}', function($id) {
 });
 
 // Analysis Articles (Admin)
-Route::get('articles', function() {
-    return response()->json(['data' => \App\Models\AnalysisArticle::all()]);
+Route::get('articles', function(Request $request) {
+    $query = \App\Models\AnalysisArticle::query();
+    if ($request->has('country_id') && $request->country_id != '') {
+        $query->where('country_id', $request->country_id);
+    }
+    return response()->json(['data' => $query->orderByDesc('published_at')->get()]);
 });
 Route::get('articles/{id}', function($id) {
     return response()->json(['data' => \App\Models\AnalysisArticle::findOrFail($id)]);

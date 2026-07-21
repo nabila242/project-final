@@ -134,18 +134,24 @@
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8 z-1">
-                    
                     <h1 class="hero-title">Global Supply Chain Risk Intelligence</h1>
                     <p class="hero-subtitle mx-auto" style="max-width: 700px;">
                         Platform untuk memantau risiko rantai pasok global dengan mengintegrasikan data cuaca, ekonomi, kurs mata uang, berita, dan pelabuhan dalam satu dashboard.
                     </p>
-                    <a href="/dashboard" class="btn-glow mt-2">
-                        Access Dashboard <i class="fa-solid fa-arrow-right ms-2"></i>
-                    </a>
+                    <div class="d-flex justify-content-center mt-4">
+                        <a href="/login" class="btn btn-glow rounded-pill px-5">
+                            Masuk ke Sistem (Login) <i class="fa-solid fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center">
+        <a href="{{ route('login') }}" class="text-muted text-decoration-none small"><i class="fa-solid fa-lock me-1"></i> Admin Access</a>
+    </footer>
 
 </body>
 </html>

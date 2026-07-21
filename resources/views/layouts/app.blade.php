@@ -179,6 +179,21 @@
                 <i class="fa-solid fa-code-compare"></i> Compare Countries
             </a>
         </div>
+        
+        <!-- Bottom Links -->
+        <div class="nav flex-column mt-auto pt-3 border-top w-100 position-absolute bottom-0 start-0 p-3" style="border-color: rgba(255,255,255,0.1) !important;">
+            @if(auth()->check() && (auth()->user()->email === 'admin@admin.com' || auth()->user()->email === 'admin@example.com'))
+            <a href="/admin" class="nav-link text-warning mb-1">
+                <i class="fa-solid fa-lock"></i> Admin Panel
+            </a>
+            @endif
+            <form action="{{ route('logout') }}" method="POST" class="d-inline m-0">
+                @csrf
+                <button type="submit" class="nav-link text-danger w-100 text-start border-0 bg-transparent">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </form>
+        </div>
     </nav>
 
     <!-- Main Content -->

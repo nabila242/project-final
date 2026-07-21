@@ -83,6 +83,12 @@
                 </button>
             </div>
         </div>
+        <h4 class="text-warning mb-3"><i class="fa-solid fa-user-tie me-2"></i> Expert Insights</h4>
+        <div class="row g-4 mb-5" id="expertContainer">
+            <div class="col-12 text-center text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i> Loading insights...</div>
+        </div>
+
+        <h4 class="text-info mb-3"><i class="fa-solid fa-rss me-2"></i> Live News Feed</h4>
         <div class="row g-4" id="newsContainer">
             <!-- News items injected via JS -->
         </div>
@@ -357,8 +363,9 @@
             loadCurrencyChart(c.currency_code);
         }
 
-        // Update News Intelligence for this country
+        // Update News Intelligence and Expert Analysis for this country
         loadNews('', c.id);
+        loadExpertArticles(c.id);
     }
 
     // 2 & 5. Initialize Maps (Leaflet)
@@ -516,5 +523,38 @@
         // Trigger the change event so showCountryData runs and resets everything
         document.getElementById('countrySelect').dispatchEvent(new Event('change'));
     }
+
+    // 5. Load Expert Analysis
+    function loadExpertArticles(countryId = '') {
+        const url = countryId ? `/api/articles?country_id=${countryId}` : '/api/articles';
+        fetch(url)
+            .then(r => r.json())
+            .then(res => {
+                let html = '';
+                if (res.data.length === 0) {
+                    html = '<div class="col-12 text-center text-muted">Belum ada artikel pakar.</div>';
+                } else {
+                    res.data.forEach(art => {
+                        const date = new Date(art.published_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+                        const bgClass = art.risk_level === 'high' ? 'border-danger' : (art.risk_level === 'medium' ? 'border-warning' : 'border-success');
+                        html += `
+                            <div class="col-md-6">
+                                <div class="glass-card p-4 h-100 border-start border-4 ${bgClass}">
+                                    <h5 class="fw-bold text-white mb-2">${art.title}</h5>
+                                    <div class="text-muted small mb-3">
+                                        <i class="fa-regular fa-clock me-1"></i> ${date} WIB
+                                    </div>
+                                    <p class="text-light mb-0" style="font-size: 0.95rem;">${art.content}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                document.getElementById('expertContainer').innerHTML = html;
+            });
+    }
+
+    // Call it on load
+    loadExpertArticles();
 </script>
 @endpush
